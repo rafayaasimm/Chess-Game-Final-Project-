@@ -124,11 +124,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="board.h" />
+    <ClInclude Include="knight.h" />
     <ClInclude Include="pawn.h" />
     <ClInclude Include="piece.h" />
     <ClInclude Include="rook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="knight.cpp" />
     <ClCompile Include="pawn.cpp" />
     <ClCompile Include="rook.cpp" />
   </ItemGroup>
