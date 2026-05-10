@@ -1,5 +1,5 @@
 #pragma once
-#include "Piece.h"
+#include "piece.h"
 
 // Knight piece moves in L shape
 class Knight : public Piece {

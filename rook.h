@@ -1,5 +1,5 @@
 #pragma once
-#include "Piece.h"
+#include "piece.h"
 
 // Rook piece moves in straight line
 class Rook : public Piece {

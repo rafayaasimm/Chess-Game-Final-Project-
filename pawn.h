@@ -1,5 +1,5 @@
 #pragma once
-#include "Piece.h"
+#include "piece.h"
 
 // Pawn piece is the smallest piece
 class Pawn : public Piece {
