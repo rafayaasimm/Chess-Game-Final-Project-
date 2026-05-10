@@ -34,9 +34,18 @@ public:
     virtual string getPieceName() const = 0;
 
     // getter functions info ke liye
-    Color getColor() const { return color; }
-    int getRow()     const { return row; }
-    int getCol()     const { return col; }
+    Color getColor() const 
+    { 
+        return color; 
+    }
+    int getRow() const 
+    { 
+        return row; 
+    }
+    int getCol() const 
+    { 
+        return col; 
+    }
 
     // piece ki new location set
     void setPosition(int r, int c) {
