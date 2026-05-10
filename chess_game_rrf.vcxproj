@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="knight.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="pawn.cpp" />
     <ClCompile Include="rook.cpp" />
   </ItemGroup>
