@@ -1,5 +1,5 @@
-#include "Knight.h"
-#include "Board.h"
+#include "knight.h"
+#include "board.h"
 
 // Knight banana - WHITE ho to N aur BLACK ho to n
 Knight::Knight(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'N' : 'n') {

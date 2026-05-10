@@ -1,8 +1,8 @@
 #include <iostream>
-#include "Piece.h"
-#include "Pawn.h"
-#include "Rook.h"
-#include "Knight.h"
+#include "piece.h"
+#include "pawn.h"
+#include "rook.h"
+#include "knight.h"
 using namespace std;
 
 int main() {

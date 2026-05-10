@@ -1,5 +1,5 @@
-#include "Rook.h"
-#include "Board.h"
+#include "rook.h"
+#include "board.h"
 
 // Rook banana - WHITE ho to R aur BLACK ho to r
 Rook::Rook(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'R' : 'r') {

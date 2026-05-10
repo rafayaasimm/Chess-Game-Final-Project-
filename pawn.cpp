@@ -1,5 +1,5 @@
-#include "Pawn.h"
-#include "Board.h"
+#include "pawn.h"
+#include "board.h"
 
 // Pawn created WHITE ho to P aur BLACK ho to p
 Pawn::Pawn(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'P' : 'p') {
