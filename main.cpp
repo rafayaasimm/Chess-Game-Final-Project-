@@ -3,20 +3,21 @@
 #include "pawn.h"
 #include "rook.h"
 #include "knight.h"
+#include "bishop.h"
+#include "queen.h"
+#include "king.h"
+#include "board.h"
 using namespace std;
 
 int main() {
 
-    //three pieces made for testing
-    Pawn   p(WHITE, 6, 4); // WHITE Pawn row 6 column 4 par
-    Rook   r(WHITE, 7, 0); // WHITE Rook row 7 column 0 par
-    Knight n(BLACK, 0, 1); // BLACK Knight row 0 column 1 par
+    // Rafay's test - polymorphism
+    Pawn   p(WHITE, 6, 4);
+    Rook   r(WHITE, 7, 0);
+    Knight n(BLACK, 0, 1);
 
-   //three pieces added to array
-   // Piece* use kiya hai yeh polymorphism hai
     Piece* pieces[3] = { &p, &r, &n };
 
-    //har piece ki information print test
     for (int i = 0; i < 3; i++) {
         cout << pieces[i]->getPieceName()
              << " -- Symbol: " << pieces[i]->getSymbol()
@@ -24,6 +25,13 @@ int main() {
              << (pieces[i]->getColor() == WHITE ? "WHITE" : "BLACK")
              << endl;
     }
+
+    // Rameen's test - Board setup and display
+    cout << "\n--- Board Setup Test ---" << endl;
+    Board b;
+    b.setupBoard();
+    b.displayBoard();
+    cout << "Board setup complete. All 32 pieces placed." << endl;
 
     return 0;
 }
