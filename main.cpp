@@ -7,6 +7,7 @@
 #include "queen.h"
 #include "king.h"
 #include "board.h"
+#include "game.h"
 using namespace std;
 
 int main() {
@@ -33,7 +34,14 @@ int main() {
     b.setupBoard();
     b.displayBoard();
     cout << "Board setup complete. All 32 pieces placed." << endl;
-
-    
+ 
+    // Faryal's test - Game flow
+    string p1, p2;
+    cout << "Enter Player 1 name (WHITE): ";
+    cin >> p1;
+    cout << "Enter Player 2 name (BLACK): ";
+    cin >> p2;
+    Game game(p1, p2);
+    game.start();
     return 0;
 }
