@@ -11,4 +11,5 @@ public:
     char getSymbol() const override;
     string getPieceName() const override;
     bool isValidMove(Board& b, int toRow, int toCol) override;
+    void setMoved();
 };

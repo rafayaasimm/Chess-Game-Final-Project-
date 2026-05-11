@@ -1,8 +1,7 @@
 #include "queen.h"
 #include "board.h"
 
-Queen::Queen(Color c, int r, int cl)
-    : Piece(c, r, cl, c == WHITE ? 'Q' : 'q') {}
+Queen::Queen(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'Q' : 'q') {}
 
 char Queen::getSymbol() const { return symbol; }
 string Queen::getPieceName() const { return "Queen"; }

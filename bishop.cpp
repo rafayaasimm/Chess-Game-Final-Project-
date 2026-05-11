@@ -1,8 +1,7 @@
 #include "bishop.h"
 #include "board.h"
 
-Bishop::Bishop(Color c, int r, int cl)
-    : Piece(c, r, cl, c == WHITE ? 'B' : 'b') {}
+Bishop::Bishop(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'B' : 'b') {}
 
 char Bishop::getSymbol() const { return symbol; }
 string Bishop::getPieceName() const { return "Bishop"; }

@@ -1,37 +1,37 @@
 #include "pawn.h"
 #include "board.h"
 
-// Pawn created WHITE ho to P aur BLACK ho to p
-Pawn::Pawn(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'P' : 'p') {
-    hasMoved = false; // abhi nahi chala
+Pawn::Pawn(Color c, int r, int cl) : Piece(c, r, cl, c == WHITE ? 'P' : 'p') {
+    hasMoved = false;
 }
 
-// Pawn ka symbol return 
-char Pawn::getSymbol() const {
-    return symbol;
-}
+char Pawn::getSymbol() const { return symbol; }
+string Pawn::getPieceName() const { return "Pawn"; }
 
-// Pawn ka name return 
-string Pawn::getPieceName() const {
-    return "Pawn";
-}
+void Pawn::setMoved() { hasMoved = true; }
 
-// check move valid hai
 bool Pawn::isValidMove(Board& b, int toRow, int toCol) {
-
-    // WHITE upar jata hai isliye -1
-    // BLACK neeche jata hai isliye +1
-    int direction = (color == WHITE) ? -1 : 1;
-
-    // kitni rows aur colums move hua
+    int direction = (color == WHITE) ? -1 : 1; // WHITE moves up (-1), BLACK moves down (+1)
     int rowDiff = toRow - row;
     int colDiff = toCol - col;
 
-    // sirf ek step aage chal sakta hai
+    // --- Forward one step: destination must be empty ---
     if (colDiff == 0 && rowDiff == direction) {
-        return true;
+        return b.getPiece(toRow, toCol) == nullptr;
     }
 
-    // wrong move
+    // --- Forward two steps: only from starting row, both squares must be empty ---
+    if (colDiff == 0 && rowDiff == 2 * direction && !hasMoved) {
+        int midRow = row + direction;
+        return b.getPiece(midRow, col) == nullptr &&
+            b.getPiece(toRow, toCol) == nullptr;
+    }
+
+    // --- Diagonal capture: must be an enemy piece on the target square ---
+    if (abs(colDiff) == 1 && rowDiff == direction) {
+        Piece* target = b.getPiece(toRow, toCol);
+        return target != nullptr && target->getColor() != color;
+    }
+
     return false;
 }

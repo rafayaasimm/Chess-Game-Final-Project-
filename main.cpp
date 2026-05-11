@@ -12,21 +12,21 @@ using namespace std;
 
 int main() {
 
-    // Rafay's test - polymorphism
-    Pawn   p(WHITE, 6, 4);
-    Rook   r(WHITE, 7, 0);
-    Knight n(BLACK, 0, 1);
+    //// Rafay's test - polymorphism
+    //Pawn   p(WHITE, 6, 4);
+    //Rook   r(WHITE, 7, 0);
+    //Knight n(BLACK, 0, 1);
 
-    Piece* pieces[3] = { &p, &r, &n };
+    //Piece* pieces[3] = { &p, &r, &n };
 
-    for (int i = 0; i < 3; i++) 
-    {
-        cout << pieces[i]->getPieceName()
-             << " -- Symbol: " << pieces[i]->getSymbol()
-             << " -- Color: "
-             << (pieces[i]->getColor() == WHITE ? "WHITE" : "BLACK")
-             << endl;
-    }
+    //for (int i = 0; i < 3; i++) 
+    //{
+    //    cout << pieces[i]->getPieceName()
+    //         << " -- Symbol: " << pieces[i]->getSymbol()
+    //         << " -- Color: "
+    //         << (pieces[i]->getColor() == WHITE ? "WHITE" : "BLACK")
+    //         << endl;
+    //}
 
     // Rameen's test - Board setup and display
     cout << "\n--- Board Setup Test ---" << endl;

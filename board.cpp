@@ -66,7 +66,7 @@ void Board::setupBoard() {
 
 void Board::displayBoard() const {
     cout << "\n    a  b  c  d  e  f  g  h" << endl;
-    cout << "  +------------------------+" << endl;
+    cout << "  ---------------------------" << endl;
     for (int r = 0; r < 8; r++) {
         cout << (8 - r) << " | ";
         for (int c = 0; c < 8; c++) {
@@ -77,7 +77,7 @@ void Board::displayBoard() const {
         }
         cout << "| " << (8 - r) << endl;
     }
-    cout << "  +------------------------+" << endl;
+    cout << "  ---------------------------" << endl;
     cout << "    a  b  c  d  e  f  g  h" << endl;
 }
 
@@ -88,10 +88,28 @@ bool Board::movePiece(int fR, int fC, int tR, int tC) {
     if (p == nullptr) return false;
     if (!p->isValidMove(*this, tR, tC)) return false;
 
-    delete grid[tR][tC];
+    // --- Save state so we can undo if needed ---
+    Piece* captured = grid[tR][tC];
+
+    // --- Temporarily make the move ---
     grid[tR][tC] = p;
     grid[fR][fC] = nullptr;
     p->setPosition(tR, tC);
+
+    // --- If own king is now in check, undo and reject ---
+    if (isInCheck(p->getColor())) {
+        p->setPosition(fR, fC);
+        grid[fR][fC] = p;
+        grid[tR][tC] = captured;
+        return false;
+    }
+
+    // --- Move is legal: commit it ---
+    delete captured; // remove captured enemy piece from memory
+
+    // Mark pawn as having moved (enables 2-square block, disables double-step)
+    Pawn* pawn = dynamic_cast<Pawn*>(p);
+    if (pawn != nullptr) pawn->setMoved();
 
     return true;
 }

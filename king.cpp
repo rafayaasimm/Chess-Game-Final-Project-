@@ -1,8 +1,7 @@
 #include "king.h"
 #include "board.h"
 
-King::King(Color c, int r, int cl)
-    : Piece(c, r, cl, c == WHITE ? 'K' : 'k') {}
+King::King(Color c, int r, int cl): Piece(c, r, cl, c == WHITE ? 'K' : 'k') {}
 
 char King::getSymbol() const { return symbol; }
 string King::getPieceName() const { return "King"; }
