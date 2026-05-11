@@ -18,6 +18,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="knight.h" />
+    <ClInclude Include="bishop.h" />
+    <ClInclude Include="board.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="king.h" />
+    <ClInclude Include="pawn.h" />
+    <ClInclude Include="piece.h" />
+    <ClInclude Include="queen.h" />
+    <ClInclude Include="rook.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bishop.cpp" />
+    <ClCompile Include="board.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="king.cpp" />
+    <ClCompile Include="knight.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pawn.cpp" />
+    <ClCompile Include="queen.cpp" />
+    <ClCompile Include="rook.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -122,19 +144,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="board.h" />
-    <ClInclude Include="knight.h" />
-    <ClInclude Include="pawn.h" />
-    <ClInclude Include="piece.h" />
-    <ClInclude Include="rook.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="knight.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="pawn.cpp" />
-    <ClCompile Include="rook.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
