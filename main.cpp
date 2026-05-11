@@ -18,7 +18,8 @@ int main() {
 
     Piece* pieces[3] = { &p, &r, &n };
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) 
+    {
         cout << pieces[i]->getPieceName()
              << " -- Symbol: " << pieces[i]->getSymbol()
              << " -- Color: "
@@ -33,5 +34,6 @@ int main() {
     b.displayBoard();
     cout << "Board setup complete. All 32 pieces placed." << endl;
 
+    
     return 0;
 }
