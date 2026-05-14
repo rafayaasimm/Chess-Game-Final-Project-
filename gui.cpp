@@ -4,6 +4,7 @@
 #include "bishop.h"
 #include "knight.h"
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 // Constructor - GUI banata hai, window, font aur sprites load karta hai
@@ -11,17 +12,35 @@ GUI::GUI(Board& b, string p1, string p2) : board(b),
 window(sf::VideoMode(640, 700), "Chess Game"),
 player1Name(p1), player2Name(p2)
 {
-    // Window ki maximum frame rate 60 per second set karo
-    window.setFramerateLimit(60);
+    try {
+        // Window theek se bani ya nahi check karo
+        if (!window.isOpen())
+            throw runtime_error("SFML window open nahi hui!");
 
-    // Font load karo player names dikhane ke liye
-    font.loadFromFile("C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/Roboto-Regular.ttf");
+        // Window ki maximum frame rate 60 per second set karo
+        window.setFramerateLimit(60);
 
-    // Saari 12 piece images load karo
-    loadSprites();
+        // Font load karo player names dikhane ke liye
+        if (!font.loadFromFile("C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/Roboto-Regular.ttf"))
+            throw runtime_error("Font file nahi mili: Roboto-Regular.ttf");
 
-    // Legal moves array ko false se initialize karo
-    clearLegalMoves();
+        // Saari 12 piece images load karo
+        loadSprites();
+
+        // Legal moves array ko false se initialize karo
+        clearLegalMoves();
+    }
+    catch (const runtime_error& e) {
+        // Runtime error aaya - message print karo aur game bina font ke chalao
+        cout << "GUI setup mein masla: " << e.what() << "\n";
+        cout << "Game bina font ke chalay ga...\n";
+        clearLegalMoves();
+    }
+    catch (...) {
+        // Koi bhi unexpected error - game band karo
+        cout << "GUI mein unknown error aa gaya!\n";
+        window.close();
+    }
 }
 
 // Saari 12 piece images disk se load karta hai aur sprites banata hai
@@ -46,25 +65,41 @@ void GUI::loadSprites() {
         "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bP.png"
     };
 
+    int loadedCount = 0;
+
     for (int i = 0; i < 12; i++) {
-        // Symbol map mein store karo taake baad mein dhund sakein
-        symMap[i] = syms[i];
+        try {
+            // Symbol map mein store karo taake baad mein dhund sakein
+            symMap[i] = syms[i];
 
-        // Image file load karo - agar fail ho to warning print karo
-        if (!textures[i].loadFromFile(paths[i]))
-            cout << "Warning: could not load " << paths[i] << "\n";
+            // Image file load karo - agar fail ho to exception throw karo
+            if (!textures[i].loadFromFile(paths[i]))
+                throw runtime_error(string("Image load nahi hui: ") + paths[i]);
 
-        // Smooth scaling enable karo taake image resize hone par blur na lage
-        textures[i].setSmooth(true);
+            // Smooth scaling enable karo taake image resize hone par blur na lage
+            textures[i].setSmooth(true);
 
-        // Sprite ko texture se link karo
-        sprites[i].setTexture(textures[i]);
+            // Sprite ko texture se link karo
+            sprites[i].setTexture(textures[i]);
 
-        // Image ko exactly ek square mein fit karne ke liye scale karo
-        float sx = (float)TILE / textures[i].getSize().x;
-        float sy = (float)TILE / textures[i].getSize().y;
-        sprites[i].setScale(sx, sy);
+            // Image ko exactly ek square mein fit karne ke liye scale karo
+            float sx = (float)TILE / textures[i].getSize().x;
+            float sy = (float)TILE / textures[i].getSize().y;
+            sprites[i].setScale(sx, sy);
+
+            loadedCount++;
+        }
+        catch (const runtime_error& e) {
+            // Ek image nahi mili - warning print karo aur baaki load karte raho
+            cout << "Warning: " << e.what() << "\n";
+        }
     }
+
+    // Agar koi bhi image load nahi hui to serious error hai
+    if (loadedCount == 0)
+        throw runtime_error("Koi bhi piece image load nahi hui! pieces folder check karo.");
+
+    cout << loadedCount << "/12 piece images successfully load hui.\n";
 }
 
 // Diye gaye symbol ka index symMap mein dhundta hai
@@ -85,35 +120,46 @@ void GUI::clearLegalMoves() {
 // Diye gaye square par jo piece hai uske saare valid moves calculate karta hai
 // green dots dikhane ke liye use hota hai
 void GUI::computeLegalMoves(int row, int col) {
-    clearLegalMoves();
-    Piece* p = board.getPiece(row, col);
+    try {
+        // Row aur column valid range mein hone chahiye
+        if (row < 0 || row > 7 || col < 0 || col > 7)
+            throw out_of_range("computeLegalMoves: row/col board se bahar hai!");
 
-    // Agar square empty hai to kuch karne ki zaroorat nahi
-    if (p == nullptr) return;
+        clearLegalMoves();
+        Piece* p = board.getPiece(row, col);
 
-    // Board ke har square ko check karo
-    for (int r = 0; r < 8; r++) {
-        for (int c = 0; c < 8; c++) {
-            // Agar piece ki movement rules ke hisaab se invalid hai to skip
-            if (!p->isValidMove(board, r, c)) continue;
+        // Agar square empty hai to kuch karne ki zaroorat nahi
+        if (p == nullptr) return;
 
-            // Move temporarily simulate karo
-            Piece* captured = board.getPiece(r, c);
-            board.setPiece(r, c, p);
-            board.setPiece(row, col, nullptr);
-            p->setPosition(r, c);
+        // Board ke har square ko check karo
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                // Agar piece ki movement rules ke hisaab se invalid hai to skip
+                if (!p->isValidMove(board, r, c)) continue;
 
-            // Check karo ke is move ke baad apna king safe hai
-            bool safe = !board.isInCheck(p->getColor());
+                // Move temporarily simulate karo
+                Piece* captured = board.getPiece(r, c);
+                board.setPiece(r, c, p);
+                board.setPiece(row, col, nullptr);
+                p->setPosition(r, c);
 
-            // Move wapas undo karo
-            p->setPosition(row, col);
-            board.setPiece(row, col, p);
-            board.setPiece(r, c, captured);
+                // Check karo ke is move ke baad apna king safe hai
+                bool safe = !board.isInCheck(p->getColor());
 
-            // Agar king safe hai to yeh valid move hai - true mark karo
-            if (safe) legalMoves[r][c] = true;
+                // Move wapas undo karo
+                p->setPosition(row, col);
+                board.setPiece(row, col, p);
+                board.setPiece(r, c, captured);
+
+                // Agar king safe hai to yeh valid move hai - true mark karo
+                if (safe) legalMoves[r][c] = true;
+            }
         }
+    }
+    catch (const out_of_range& e) {
+        // Invalid position - legal moves clear karo aur continue karo
+        cout << "Legal moves error: " << e.what() << "\n";
+        clearLegalMoves();
     }
 }
 
@@ -168,28 +214,34 @@ void GUI::drawBoard() {
 
     // Player names sirf tab draw karo jab font properly load hua ho
     if (font.getInfo().family != "") {
-        // WHITE player ka naam left side par
-        sf::Text t1;
-        t1.setFont(font); t1.setCharacterSize(15);
-        // Jis ki baari hai uska naam yellow, doosra grey
-        t1.setFillColor(currentTurn == WHITE
-            ? sf::Color::Yellow : sf::Color(180, 180, 180));
-        // Agar WHITE ki turn hai to naam ke saath << arrow bhi dikhao
-        t1.setString(player1Name + (currentTurn == WHITE ? " <<" : ""));
-        t1.setPosition(32, 650);
-        window.draw(t1);
+        try {
+            // WHITE player ka naam left side par
+            sf::Text t1;
+            t1.setFont(font); t1.setCharacterSize(15);
+            // Jis ki baari hai uska naam yellow, doosra grey
+            t1.setFillColor(currentTurn == WHITE
+                ? sf::Color::Yellow : sf::Color(180, 180, 180));
+            // Agar WHITE ki turn hai to naam ke saath << arrow bhi dikhao
+            t1.setString(player1Name + (currentTurn == WHITE ? " <<" : ""));
+            t1.setPosition(32, 650);
+            window.draw(t1);
 
-        // BLACK player ka naam right side par
-        sf::Text t2;
-        t2.setFont(font); t2.setCharacterSize(15);
-        t2.setFillColor(currentTurn == BLACK
-            ? sf::Color::Yellow : sf::Color(180, 180, 180));
-        // Agar BLACK ki turn hai to >> arrow pehle dikhao
-        t2.setString((currentTurn == BLACK ? ">> " : "") + player2Name);
-        sf::FloatRect b2 = t2.getLocalBounds();
-        // Text ko right side se align karo
-        t2.setPosition(608 - b2.width, 650);
-        window.draw(t2);
+            // BLACK player ka naam right side par
+            sf::Text t2;
+            t2.setFont(font); t2.setCharacterSize(15);
+            t2.setFillColor(currentTurn == BLACK
+                ? sf::Color::Yellow : sf::Color(180, 180, 180));
+            // Agar BLACK ki turn hai to >> arrow pehle dikhao
+            t2.setString((currentTurn == BLACK ? ">> " : "") + player2Name);
+            sf::FloatRect b2 = t2.getLocalBounds();
+            // Text ko right side se align karo
+            t2.setPosition(608 - b2.width, 650);
+            window.draw(t2);
+        }
+        catch (...) {
+            // Text draw karne mein koi masla - skip karo game chalti rahegi
+            cout << "Player names draw karne mein masla aaya.\n";
+        }
     }
 }
 
@@ -235,20 +287,26 @@ void GUI::drawHighlightsAndDots() {
 void GUI::drawPieces() {
     for (int r = 0; r < 8; r++) {
         for (int c = 0; c < 8; c++) {
-            Piece* p = board.getPiece(r, c);
+            try {
+                Piece* p = board.getPiece(r, c);
 
-            // Empty square skip karo
-            if (p == nullptr) continue;
+                // Empty square skip karo
+                if (p == nullptr) continue;
 
-            // Piece ke symbol se uska sprite index nikalo
-            int idx = getIndex(p->getSymbol());
+                // Piece ke symbol se uska sprite index nikalo
+                int idx = getIndex(p->getSymbol());
 
-            // Agar index nahi mila to skip karo
-            if (idx == -1) continue;
+                // Agar index nahi mila to skip karo
+                if (idx == -1) continue;
 
-            // Sprite ko sahi position par draw karo
-            sprites[idx].setPosition(c * TILE, r * TILE);
-            window.draw(sprites[idx]);
+                // Sprite ko sahi position par draw karo
+                sprites[idx].setPosition(c * TILE, r * TILE);
+                window.draw(sprites[idx]);
+            }
+            catch (...) {
+                // Kisi ek piece ko draw karne mein masla - skip karo baaki draw hoti rahein
+                cout << "Piece draw error at row=" << r << " col=" << c << "\n";
+            }
         }
     }
 }
@@ -256,55 +314,62 @@ void GUI::drawPieces() {
 // Game khatam hone par bada overlay screen par dikhata hai
 // checkmate ya stalemate dono ke liye use hota hai
 void GUI::drawEndScreen(string line1, string line2, sf::Color col) {
-    // Poori screen par dark overlay draw karo
-    sf::RectangleShape overlay(sf::Vector2f(640, 700));
-    overlay.setFillColor(sf::Color(0, 0, 0, 190));
-    window.draw(overlay);
+    try {
+        // Poori screen par dark overlay draw karo
+        sf::RectangleShape overlay(sf::Vector2f(640, 700));
+        overlay.setFillColor(sf::Color(0, 0, 0, 190));
+        window.draw(overlay);
 
-    // Colored banner draw karo - checkmate ke liye gold, stalemate ke liye blue
-    sf::RectangleShape banner(sf::Vector2f(500, 80));
-    banner.setFillColor(col);
-    banner.setOrigin(250, 40);
-    banner.setPosition(320, 280);
-    window.draw(banner);
+        // Colored banner draw karo - checkmate ke liye gold, stalemate ke liye blue
+        sf::RectangleShape banner(sf::Vector2f(500, 80));
+        banner.setFillColor(col);
+        banner.setOrigin(250, 40);
+        banner.setPosition(320, 280);
+        window.draw(banner);
 
-    // Doosra banner winner ka naam dikhane ke liye
-    sf::RectangleShape banner2(sf::Vector2f(400, 50));
-    banner2.setFillColor(sf::Color(50, 50, 50));
-    banner2.setOrigin(200, 25);
-    banner2.setPosition(320, 370);
-    window.draw(banner2);
+        // Doosra banner winner ka naam dikhane ke liye
+        sf::RectangleShape banner2(sf::Vector2f(400, 50));
+        banner2.setFillColor(sf::Color(50, 50, 50));
+        banner2.setOrigin(200, 25);
+        banner2.setPosition(320, 370);
+        window.draw(banner2);
 
-    // Sirf tab text draw karo jab font load hua ho
-    if (font.getInfo().family != "") {
-        // Bada message jaise "CHECKMATE!"
-        sf::Text msg;
-        msg.setFont(font); msg.setCharacterSize(42);
-        msg.setFillColor(sf::Color::White);
-        msg.setString(line1);
-        sf::FloatRect mb = msg.getLocalBounds();
-        // Text ko banner ke beech mein center karo
-        msg.setOrigin(mb.left + mb.width / 2.f, mb.top + mb.height / 2.f);
-        msg.setPosition(320, 280);
-        window.draw(msg);
+        // Sirf tab text draw karo jab font load hua ho
+        if (font.getInfo().family != "") {
+            // Bada message jaise "CHECKMATE!"
+            sf::Text msg;
+            msg.setFont(font); msg.setCharacterSize(42);
+            msg.setFillColor(sf::Color::White);
+            msg.setString(line1);
+            sf::FloatRect mb = msg.getLocalBounds();
+            // Text ko banner ke beech mein center karo
+            msg.setOrigin(mb.left + mb.width / 2.f, mb.top + mb.height / 2.f);
+            msg.setPosition(320, 280);
+            window.draw(msg);
 
-        // Chota message jaise "rafay WINS!"
-        sf::Text sub;
-        sub.setFont(font); sub.setCharacterSize(24);
-        sub.setFillColor(sf::Color::Yellow);
-        sub.setString(line2);
-        sf::FloatRect sb = sub.getLocalBounds();
-        sub.setOrigin(sb.left + sb.width / 2.f, sb.top + sb.height / 2.f);
-        sub.setPosition(320, 370);
-        window.draw(sub);
+            // Chota message jaise "rafay WINS!"
+            sf::Text sub;
+            sub.setFont(font); sub.setCharacterSize(24);
+            sub.setFillColor(sf::Color::Yellow);
+            sub.setString(line2);
+            sf::FloatRect sb = sub.getLocalBounds();
+            sub.setOrigin(sb.left + sb.width / 2.f, sb.top + sb.height / 2.f);
+            sub.setPosition(320, 370);
+            window.draw(sub);
+        }
+
+        // End screen display karo
+        window.display();
+
+        // 4 second ruko taake player result dekh sake
+        sf::sleep(sf::seconds(4));
+        window.close();
     }
-
-    // End screen display karo
-    window.display();
-
-    // 4 second ruko taake player result dekh sake
-    sf::sleep(sf::seconds(4));
-    window.close();
+    catch (...) {
+        // End screen draw mein masla - game band karo
+        cout << "End screen draw nahi ho saka. Window band ho rahi hai.\n";
+        window.close();
+    }
 }
 
 // Promotion popup draw karta hai jab pawn last row par pahunche
@@ -376,24 +441,40 @@ void GUI::handlePromoClick(int mx, int my) {
 
         // Agar click is option ke andar hai
         if (mx >= x && mx <= x + TILE && my >= y && my <= y + TILE) {
-            // Purana pawn delete karo
-            delete board.getPiece(promoRow, promoCol);
+            try {
+                // Purana pawn delete karo
+                delete board.getPiece(promoRow, promoCol);
 
-            // Chosen piece ka uppercase symbol nikalo
-            char sym = toupper(choices[i]);
-            Piece* newPiece = nullptr;
+                // Chosen piece ka uppercase symbol nikalo
+                char sym = toupper(choices[i]);
+                Piece* newPiece = nullptr;
 
-            // New piece banao jo player ne choose ki
-            if (sym == 'Q') newPiece = new Queen(promoColor, promoRow, promoCol);
-            else if (sym == 'R') newPiece = new Rook(promoColor, promoRow, promoCol);
-            else if (sym == 'B') newPiece = new Bishop(promoColor, promoRow, promoCol);
-            else if (sym == 'N') newPiece = new Knight(promoColor, promoRow, promoCol);
+                // New piece banao jo player ne choose ki
+                if (sym == 'Q') newPiece = new Queen(promoColor, promoRow, promoCol);
+                else if (sym == 'R') newPiece = new Rook(promoColor, promoRow, promoCol);
+                else if (sym == 'B') newPiece = new Bishop(promoColor, promoRow, promoCol);
+                else if (sym == 'N') newPiece = new Knight(promoColor, promoRow, promoCol);
 
-            // New piece board par rakh do
-            board.setPiece(promoRow, promoCol, newPiece);
+                // Agar koi piece nahi bani to error throw karo
+                if (newPiece == nullptr)
+                    throw runtime_error("Promotion piece nahi ban saki!");
 
-            // Promotion complete - popup band karo
-            promoWaiting = false;
+                // New piece board par rakh do
+                board.setPiece(promoRow, promoCol, newPiece);
+
+                // Promotion complete - popup band karo
+                promoWaiting = false;
+            }
+            catch (const runtime_error& e) {
+                // Promotion mein masla - message print karo
+                cout << "Promotion error: " << e.what() << "\n";
+                promoWaiting = false;
+            }
+            catch (...) {
+                // Memory alloc ya koi aur masla
+                cout << "Promotion mein unknown error!\n";
+                promoWaiting = false;
+            }
             return;
         }
     }
@@ -401,104 +482,126 @@ void GUI::handlePromoClick(int mx, int my) {
 
 // Har move ke baad check karta hai ke game khatam hua ya nahi
 void GUI::checkEndConditions(Color opponent, Game& game, string moverName) {
-    if (board.isInCheck(opponent)) {
-        if (game.isCheckmate(opponent)) {
-            // Check bhi hai aur koi move bhi nahi - checkmate
-            drawEndScreen("CHECKMATE!", moverName + " WINS!",
-                sf::Color(180, 140, 0));
+    try {
+        if (board.isInCheck(opponent)) {
+            if (game.isCheckmate(opponent)) {
+                // Check bhi hai aur koi move bhi nahi - checkmate
+                drawEndScreen("CHECKMATE!", moverName + " WINS!",
+                    sf::Color(180, 140, 0));
+            }
+            else {
+                // Sirf check hai - red border draw karo warning ke liye
+                sf::RectangleShape border(sf::Vector2f(636, 636));
+                border.setPosition(2, 2);
+                border.setFillColor(sf::Color::Transparent);
+                border.setOutlineColor(sf::Color::Red);
+                border.setOutlineThickness(6.f);
+                window.draw(border);
+            }
         }
-        else {
-            // Sirf check hai - red border draw karo warning ke liye
-            sf::RectangleShape border(sf::Vector2f(636, 636));
-            border.setPosition(2, 2);
-            border.setFillColor(sf::Color::Transparent);
-            border.setOutlineColor(sf::Color::Red);
-            border.setOutlineThickness(6.f);
-            window.draw(border);
+        else if (game.isCheckmate(opponent)) {
+            // Check nahi lekin koi move bhi nahi - stalemate yaani draw
+            drawEndScreen("STALEMATE!", "The game is a draw.",
+                sf::Color(0, 120, 180));
         }
     }
-    else if (game.isCheckmate(opponent)) {
-        // Check nahi lekin koi move bhi nahi - stalemate yaani draw
-        drawEndScreen("STALEMATE!", "The game is a draw.",
-            sf::Color(0, 120, 180));
+    catch (...) {
+        // Check/checkmate calculation mein masla - game continue karo
+        cout << "End condition check mein error aaya.\n";
     }
 }
 
 // Mouse click handle karta hai - piece select karna ya move karna
 void GUI::handleClick(int mx, int my, Game& game) {
-    // Agar promotion popup open hai to pehle woh handle karo
-    if (promoWaiting) { handlePromoClick(mx, my); return; }
+    try {
+        // Agar promotion popup open hai to pehle woh handle karo
+        if (promoWaiting) { handlePromoClick(mx, my); return; }
 
-    // Board ke neeche info bar par click ignore karo
-    if (my > 640) return;
+        // Board ke neeche info bar par click ignore karo
+        if (my > 640) return;
 
-    // Mouse pixel position ko board row aur column mein convert karo
-    int col = mx / TILE;
-    int row = my / TILE;
+        // Mouse pixel position ko board row aur column mein convert karo
+        int col = mx / TILE;
+        int row = my / TILE;
 
-    // Board ke bahar click ignore karo
-    if (row < 0 || row > 7 || col < 0 || col > 7) return;
+        // Board ke bahar click ignore karo
+        if (row < 0 || row > 7 || col < 0 || col > 7) return;
 
-    if (!pieceSelected) {
-        // Pehla click - piece select karo
-        Piece* p = board.getPiece(row, col);
+        if (!pieceSelected) {
+            // Pehla click - piece select karo
+            Piece* p = board.getPiece(row, col);
 
-        // Sirf apni piece select ho sakti hai
-        if (p != nullptr && p->getColor() == currentTurn) {
-            selRow = row; selCol = col;
-            pieceSelected = true;
-            // Is piece ke liye saare valid moves calculate karo
-            computeLegalMoves(row, col);
+            // Sirf apni piece select ho sakti hai
+            if (p != nullptr && p->getColor() == currentTurn) {
+                selRow = row; selCol = col;
+                pieceSelected = true;
+                // Is piece ke liye saare valid moves calculate karo
+                computeLegalMoves(row, col);
+            }
         }
-    }
-    else {
-        // Agar same square par dobara click kiya to deselect karo
-        if (row == selRow && col == selCol) {
-            pieceSelected = false;
-            selRow = selCol = -1;
-            clearLegalMoves();
-            return;
-        }
+        else {
+            // Agar same square par dobara click kiya to deselect karo
+            if (row == selRow && col == selCol) {
+                pieceSelected = false;
+                selRow = selCol = -1;
+                clearLegalMoves();
+                return;
+            }
 
-        Color moverColor = currentTurn;
-        // Current player ka naam winner message ke liye
-        string moverName = (moverColor == WHITE) ? player1Name : player2Name;
-        Color opponent = (moverColor == WHITE) ? BLACK : WHITE;
+            Color moverColor = currentTurn;
+            // Current player ka naam winner message ke liye
+            string moverName = (moverColor == WHITE) ? player1Name : player2Name;
+            Color opponent = (moverColor == WHITE) ? BLACK : WHITE;
 
-        // Move karne ki koshish karo
-        if (board.movePiece(selRow, selCol, row, col)) {
-            Piece* moved = board.getPiece(row, col);
+            // Move karne ki koshish karo
+            if (board.movePiece(selRow, selCol, row, col)) {
+                Piece* moved = board.getPiece(row, col);
 
-            // Check karo ke pawn last row par pahuncha ya nahi
-            if (moved && moved->getPieceName() == "Pawn") {
-                if ((moved->getColor() == WHITE && row == 0) ||
-                    (moved->getColor() == BLACK && row == 7)) {
-                    // Promotion pending - popup dikhao
-                    promoWaiting = true;
-                    promoRow = row; promoCol = col;
-                    promoColor = moved->getColor();
+                // Check karo ke pawn last row par pahuncha ya nahi
+                if (moved && moved->getPieceName() == "Pawn") {
+                    if ((moved->getColor() == WHITE && row == 0) ||
+                        (moved->getColor() == BLACK && row == 7)) {
+                        // Promotion pending - popup dikhao
+                        promoWaiting = true;
+                        promoRow = row; promoCol = col;
+                        promoColor = moved->getColor();
+                    }
+                }
+
+                // Turn switch karo
+                currentTurn = opponent;
+
+                // Promotion pending ho to end conditions baad mein check karo
+                if (!promoWaiting)
+                    checkEndConditions(opponent, game, moverName);
+            }
+            else {
+                // Invalid move - shayad doosri apni piece select karna chahte hain
+                Piece* p = board.getPiece(row, col);
+                if (p != nullptr && p->getColor() == currentTurn) {
+                    // Nayi piece select karo
+                    selRow = row; selCol = col;
+                    computeLegalMoves(row, col);
+                    return;
                 }
             }
 
-            // Turn switch karo
-            currentTurn = opponent;
-
-            // Promotion pending ho to end conditions baad mein check karo
-            if (!promoWaiting)
-                checkEndConditions(opponent, game, moverName);
+            // Selection reset karo next move ke liye
+            pieceSelected = false;
+            selRow = selCol = -1;
+            clearLegalMoves();
         }
-        else {
-            // Invalid move - shayad doosri apni piece select karna chahte hain
-            Piece* p = board.getPiece(row, col);
-            if (p != nullptr && p->getColor() == currentTurn) {
-                // Nayi piece select karo
-                selRow = row; selCol = col;
-                computeLegalMoves(row, col);
-                return;
-            }
-        }
-
-        // Selection reset karo next move ke liye
+    }
+    catch (const out_of_range& e) {
+        // Board se bahar access - selection reset karo
+        cout << "Click handling error: " << e.what() << "\n";
+        pieceSelected = false;
+        selRow = selCol = -1;
+        clearLegalMoves();
+    }
+    catch (...) {
+        // Koi aur masla - safely reset karo
+        cout << "Click mein unknown error aaya.\n";
         pieceSelected = false;
         selRow = selCol = -1;
         clearLegalMoves();
@@ -508,30 +611,42 @@ void GUI::handleClick(int mx, int my, Game& game) {
 // Main game loop - events handle karta hai aur har frame board draw karta hai
 void GUI::run(Game& game) {
     while (window.isOpen()) {
-        // SFML events check karo
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            // X button dabane par window band karo
-            if (event.type == sf::Event::Closed)
-                window.close();
+        try {
+            // SFML events check karo
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                // X button dabane par window band karo
+                if (event.type == sf::Event::Closed)
+                    window.close();
 
-            // Mouse click hone par handleClick call karo
-            if (event.type == sf::Event::MouseButtonPressed)
-                if (event.mouseButton.button == sf::Mouse::Left)
-                    handleClick(event.mouseButton.x,
-                        event.mouseButton.y, game);
+                // Mouse click hone par handleClick call karo
+                if (event.type == sf::Event::MouseButtonPressed)
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        handleClick(event.mouseButton.x,
+                            event.mouseButton.y, game);
+            }
+
+            // Screen saaf karo dark background se
+            window.clear(sf::Color(20, 20, 20));
+
+            // Sab kuch draw karo sahi order mein
+            drawBoard();             // Pehle squares draw karo
+            drawHighlightsAndDots(); // Phir green dots
+            drawPieces();            // Phir pieces images
+            drawPromotionPanel();    // Sabse upar promotion popup agar ho
+
+            // Sab kuch screen par display karo
+            window.display();
         }
-
-        // Screen saaf karo dark background se
-        window.clear(sf::Color(20, 20, 20));
-
-        // Sab kuch draw karo sahi order mein
-        drawBoard();            // Pehle squares draw karo
-        drawHighlightsAndDots(); // Phir green dots
-        drawPieces();           // Phir pieces images
-        drawPromotionPanel();   // Sabse upar promotion popup agar ho
-
-        // Sab kuch screen par display karo
-        window.display();
+        catch (const runtime_error& e) {
+            // Game loop mein runtime error - print karo aur band karo
+            cout << "Game loop error: " << e.what() << "\n";
+            window.close();
+        }
+        catch (...) {
+            // Koi bhi unexpected error - safely band karo
+            cout << "Game loop mein unknown error! Window band ho rahi hai.\n";
+            window.close();
+        }
     }
 }
