@@ -21,8 +21,15 @@ player1Name(p1), player2Name(p2)
         window.setFramerateLimit(60);
 
         // Font load karo player names dikhane ke liye
-        if (!font.loadFromFile("C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/Roboto-Regular.ttf"))
-            throw runtime_error("Font file nahi mili: Roboto-Regular.ttf");
+      // SFML built-in font use karo - koi file ki zaroorat nahi
+        if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf"))
+            if (!font.loadFromFile("C:/Windows/Fonts/calibri.ttf"))
+                if (!font.loadFromFile("C:/Windows/Fonts/tahoma.ttf"))
+                    if (!font.loadFromFile("C:/Windows/Fonts/verdana.ttf"))
+                        if (!font.loadFromFile("C:/Windows/Fonts/cour.ttf"))
+                            if (!font.loadFromFile("C:/Windows/Fonts/consola.ttf"))
+                                if (!font.loadFromFile("C:/Windows/Fonts/times.ttf"))
+                                    cout << "No font found\n";
 
         // Saari 12 piece images load karo
         loadSprites();
@@ -51,18 +58,18 @@ void GUI::loadSprites() {
 
     // Har piece ki image ka full path
     const char* paths[12] = {
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wK.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wQ.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wR.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wB.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wN.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/wP.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bK.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bQ.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bR.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bB.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bN.png",
-        "C:/Users/asimr/Desktop/Chess-Game-Final-Project-/chess_game_rrf/x64/Debug/pieces/bP.png"
+     "pieces/wK.png",
+     "pieces/wQ.png",
+     "pieces/wR.png",
+     "pieces/wB.png",
+     "pieces/wN.png",
+     "pieces/wP.png",
+     "pieces/bK.png",
+     "pieces/bQ.png",
+     "pieces/bR.png",
+     "pieces/bB.png",
+     "pieces/bN.png",
+     "pieces/bP.png"
     };
 
     int loadedCount = 0;

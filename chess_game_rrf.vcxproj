@@ -134,6 +134,10 @@
       <AdditionalLibraryDirectories>C:\Users\asimr\Downloads\SFML-2.6.2-windows-vc17-64-bit\SFML-2.6.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)pieces\" xcopy /Y /I "$(ProjectDir)pieces\*" "$(OutDir)pieces\"
+if exist "$(ProjectDir)Roboto-Regular.ttf" xcopy /Y "$(ProjectDir)Roboto-Regular.ttf" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -151,6 +155,10 @@
       <AdditionalLibraryDirectories>C:\Users\asimr\Downloads\SFML-2.6.2-windows-vc17-64-bit\SFML-2.6.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(ProjectDir)pieces\" xcopy /Y /I "$(ProjectDir)pieces\*" "$(OutDir)pieces\"
+if exist "$(ProjectDir)Roboto-Regular.ttf" xcopy /Y "$(ProjectDir)Roboto-Regular.ttf" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
